@@ -1,0 +1,212 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Donate with Solana</title>
+  <style>
+    :root {
+      --bg-color: #0e0e2c;
+      --text-color: #ffffff;
+      --card-bg: #1a1a40;
+      --input-bg: #2a2a60;
+      --button-bg: #9945FF;
+      --accent: #14f195;
+    }[data-theme="light"] {
+  --bg-color: #f4f4f4;
+  --text-color: #000;
+  --card-bg: #ffffff;
+  --input-bg: #f0f0f0;
+  --button-bg: #9945FF;
+  --accent: #14f195;
+}
+
+body {
+  font-family: sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100vh;
+  margin: 0;
+  padding-top: 40px;
+  transition: background 0.3s, color 0.3s;
+}
+
+.theme-toggle {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: var(--button-bg);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.container {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+}
+
+.field-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.field-group input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  background: var(--input-bg);
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  color: var(--text-color);
+}
+
+.field-label {
+  margin-right: 10px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.donate-info {
+  margin-top: 10px;
+  background: var(--input-bg);
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  word-break: break-all;
+}
+
+.copy-btn {
+  margin-left: 10px;
+  background: var(--accent);
+  border: none;
+  color: #000;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.copy-btn:hover {
+  opacity: 0.9;
+}
+
+button.action-btn {
+  padding: 10px 20px;
+  background: var(--button-bg);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+button.action-btn:hover {
+  opacity: 0.9;
+}
+
+#qrcode {
+  margin-top: 20px;
+}
+
+.address-box {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--input-bg);
+  word-break: break-word;
+  color: var(--text-color);
+}
+
+.note {
+  font-size: 14px;
+  color: gray;
+  margin-bottom: 10px;
+}
+
+#notification {
+  margin-top: 10px;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+  </style>
+</head>
+<body data-theme="dark">
+  <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">Light</button>  <div class="container">
+    <h2>Donate with Solana</h2>
+    <p class="note">This tool is only for <strong>Solana</strong> wallets (e.g. Phantom)</p><div class="donate-info">
+  <strong>For donate:</strong> <span id="staticAddress">5aZcbVVRabShf3TWyr8tMPQA3JE39fuJz8pX5qdfkkyX</span>
+  <button class="copy-btn" onclick="copyAddress()">Copy</button>
+</div>
+
+<div class="field-group">
+  <span class="field-label">Address</span>
+  <input type="text" id="walletAddress" placeholder="Solana wallet address">
+</div>
+
+<div class="field-group">
+  <span class="field-label">SOL</span>
+  <input type="number" step="0.0001" id="amount" placeholder="e.g. 1.5">
+</div>
+
+<button class="action-btn" onclick="generateQR()">Generate QR</button>
+<div id="notification"></div>
+<div id="qrcode"></div>
+<div class="address-box" id="addressBox"></div>
+
+  </div>  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>  <script>
+    function generateQR() {
+      const address = document.getElementById('walletAddress').value.trim();
+      const amount = document.getElementById('amount').value.trim();
+      const qrContainer = document.getElementById('qrcode');
+      const addressBox = document.getElementById('addressBox');
+      const notification = document.getElementById('notification');
+
+      qrContainer.innerHTML = "";
+      addressBox.innerHTML = "";
+      notification.innerHTML = "";
+
+      if (address && amount) {
+        const solanaURI = `https://phantom.app/ul/v1/send?recipient=${address}&amount=${amount}&token=SOL&network=mainnet-beta&label=Donation&message=Thank%20you`;
+
+        new QRCode(qrContainer, {
+          text: solanaURI,
+          width: 200,
+          height: 200
+        });
+
+        addressBox.innerHTML = `<strong>Phantom Link:</strong><br><a href="${solanaURI}" target="_blank">Open in Wallet</a>`;
+        notification.innerHTML = "QR code generated successfully!";
+      } else {
+        notification.innerHTML = "Please enter both address and amount.";
+      }
+    }
+
+    function copyAddress() {
+      const text = document.getElementById("staticAddress").innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Address copied to clipboard!");
+      });
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      const currentTheme = body.getAttribute("data-theme");
+      const newTheme = currentTheme === "dark" ? "light" : "dark";
+      body.setAttribute("data-theme", newTheme);
+      document.getElementById("themeBtn").innerText = newTheme === "dark" ? "Light" : "Dark";
+    }
+  </script></body>
+</html>
